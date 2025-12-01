@@ -3,6 +3,7 @@ const express = require("express");
 const helmet = require("helmet");
 const cors = require("cors");
 const apiRoutes = require("./src/routes/api");
+const errorHandler = require("./src/middleware/errorHandler"); // BARU
 
 const app = express();
 
@@ -10,12 +11,15 @@ const app = express();
 app.use(helmet());
 app.use(cors());
 
-// Body Parser
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Body Parser (tambahi limit biar aman)
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 // Routes
 app.use("/api", apiRoutes);
+
+// GLOBAL ERROR HANDLER
+app.use(errorHandler);
 
 const PORT = process.env.APP_PORT || 3000;
 app.listen(PORT, () => {
