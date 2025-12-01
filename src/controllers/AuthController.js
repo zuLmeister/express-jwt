@@ -1,7 +1,9 @@
 const AuthService = require("../services/AuthService");
+const { addToBlacklist } = require("../utils/TokenBlacklist");
+const jwt = require("jsonwebtoken");
 
-const AuthController = {
-  register: async (req, res) => {
+class AuthController {
+  static async register(req, res) {
     try {
       const { name, email, password } = req.body;
       const { user, accessToken, refreshToken } = await AuthService.register({
@@ -14,11 +16,7 @@ const AuthController = {
         success: true,
         message: "User registered successfully",
         data: {
-          user: {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-          },
+          user: { id: user.id, name: user.name, email: user.email },
           accessToken,
           refreshToken,
         },
@@ -26,9 +24,9 @@ const AuthController = {
     } catch (error) {
       return res.status(400).json({ success: false, message: error.message });
     }
-  },
+  }
 
-  login: async (req, res) => {
+  static async login(req, res) {
     try {
       const { email, password } = req.body;
       const { user, accessToken, refreshToken } = await AuthService.login({
@@ -39,11 +37,7 @@ const AuthController = {
       return res.json({
         success: true,
         data: {
-          user: {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-          },
+          user: { id: user.id, name: user.name, email: user.email },
           accessToken,
           refreshToken,
         },
@@ -51,32 +45,55 @@ const AuthController = {
     } catch (error) {
       return res.status(401).json({ success: false, message: error.message });
     }
-  },
+  }
 
-  refresh: async (req, res) => {
+  static async refresh(req, res) {
     try {
       const { refreshToken } = req.body;
-      const tokens = await AuthService.refreshToken(refreshToken);
+      if (!refreshToken) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Refresh token required" });
+      }
 
-      return res.json({
-        success: true,
-        ...tokens,
-      });
+      const tokens = await AuthService.refreshToken(refreshToken);
+      return res.json({ success: true, ...tokens });
     } catch (error) {
       return res.status(401).json({ success: false, message: error.message });
     }
-  },
+  }
 
-  logout: async (req, res) => {
+  // INI YANG BARU – LOGOUT DENGAN INVALIDASI ACCESS TOKEN!
+  static async logout(req, res) {
     try {
       const userId = req.user.id;
-      const result = await AuthService.logout(userId);
+      const authHeader = req.headers.authorization;
 
-      return res.json(result);
+      // 1. Blacklist access token (biar langsung mati)
+      if (authHeader?.startsWith("Bearer ")) {
+        const token = authHeader.split(" ")[1];
+        const decoded = jwt.decode(token);
+
+        if (decoded?.exp) {
+          addToBlacklist(token, decoded.exp);
+        }
+      }
+
+      // 2. Hapus refresh token dari database (revoke session)
+      await AuthService.logout(userId);
+
+      return res.json({
+        success: true,
+        message: "Logout successful. Session terminated.",
+      });
     } catch (error) {
-      return res.status(400).json({ success: false, message: error.message });
+      console.error("Logout error:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Logout failed",
+      });
     }
-  },
-};
+  }
+}
 
 module.exports = AuthController;
