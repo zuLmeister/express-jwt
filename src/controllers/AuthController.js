@@ -66,6 +66,17 @@ const AuthController = {
       return res.status(401).json({ success: false, message: error.message });
     }
   },
+
+  logout: async (req, res) => {
+    try {
+      const userId = req.user.id;
+      const result = await AuthService.logout(userId);
+
+      return res.json(result);
+    } catch (error) {
+      return res.status(400).json({ success: false, message: error.message });
+    }
+  },
 };
 
 module.exports = AuthController;
