@@ -1,0 +1,79 @@
+{
+  "info": {
+    "_postman_id": "d1fdfcc4-4bad-4bfb-9bae-b55b94c338d1",
+    "name": "Express Auth Boilerplate",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Register",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"name\": \"Brother Dev\",\r\n  \"email\": \"brother@mail.com\",\r\n  \"password\": \"password123\"\r\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/register",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "register"]
+        }
+      }
+    },
+    {
+      "name": "Login",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"email\": \"brother@mail.com\",\r\n  \"password\": \"password123\"\r\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/login",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "login"]
+        }
+      }
+    },
+    {
+      "name": "Refresh Token",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"refreshToken\": \"<PUT_REFRESH_TOKEN_HERE>\"\r\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/refresh",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "refresh"]
+        }
+      }
+    },
+    {
+      "name": "Get Me",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer <PUT_ACCESS_TOKEN_HERE>" }
+        ],
+        "url": {
+          "raw": "http://localhost:3000/api/me",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "me"]
+        }
+      }
+    }
+  ]
+}
