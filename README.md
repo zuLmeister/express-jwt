@@ -1,5 +1,12 @@
 # ExpressJS Authentication Boilerplate
 
+![License](https://img.shields.io/github/license/zuLmeister/express-jwt)
+![Stars](https://img.shields.io/github/stars/zuLmeister/express-jwt)
+![Forks](https://img.shields.io/github/forks/zuLmeister/express-jwt)
+![Issues](https://img.shields.io/github/issues/zuLmeister/express-jwt)
+![Pull Requests](https://img.shields.io/github/issues-pr/zuLmeister/express-jwt)
+![Node](https://img.shields.io/badge/node-%3E%3D18-success)
+
 > A clean, secure, and production-ready Express.js authentication boilerplate with JWT & refresh token support.
 
 ## Features
