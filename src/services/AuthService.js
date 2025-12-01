@@ -57,6 +57,15 @@ class AuthService {
 
     return { accessToken, refreshToken };
   }
+
+  static async logout(userId) {
+    await prisma.user.update({
+      where: { id: userId },
+      data: { refreshToken: null },
+    });
+
+    return { success: true, message: "Logged out successfully" };
+  }
 }
 
 module.exports = AuthService;

@@ -9,6 +9,7 @@ const authLimiter = require("../middleware/rateLimiter");
 router.post("/register", authLimiter, AuthController.register);
 router.post("/login", authLimiter, AuthController.login);
 router.post("/auth/refresh-token", AuthController.refresh);
+router.post("/logout", authMiddleware, AuthController.logout);
 
 // PROTECTED ROUTE
 router.get("/me", authMiddleware, (req, res) => {
