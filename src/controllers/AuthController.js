@@ -1,6 +1,7 @@
 const AuthService = require("../services/AuthService");
 const CatchAsync = require("../utils/catchAsync");
 const { addToBlacklist } = require("../utils/TokenBlacklist");
+const { success, error } = require("../utils/Response");
 const jwt = require("jsonwebtoken");
 
 class AuthController {

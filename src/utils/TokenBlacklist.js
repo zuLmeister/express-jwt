@@ -1,18 +1,39 @@
-const blacklist = new Set();
-
+const blacklist = new Map();
 const addToBlacklist = (token, expiresAt) => {
-  const timeUntilExpiry = expiresAt * 1000 - Date.now();
-  if (timeUntilExpiry > 0) {
-    blacklist.add(token);
-    setTimeout(() => {
+  const now = Math.floor(Date.now() / 1000);
+  const ttlSeconds = expiresAt - now;
+
+  if (ttlSeconds <= 0) return;
+
+  blacklist.set(token, expiresAt);
+
+  setTimeout(() => {
+    blacklist.delete(token);
+  }, ttlSeconds * 1000 + 10000);
+};
+
+const isBlacklisted = (token) => {
+  const expiresAt = blacklist.get(token);
+  if (!expiresAt) return false;
+
+  const now = Math.floor(Date.now() / 1000);
+  if (now >= expiresAt) {
+    blacklist.delete(token);
+    return false;
+  }
+
+  return true;
+};
+
+const cleanupExpired = () => {
+  const now = Math.floor(Date.now() / 1000);
+  for (const [token, exp] of blacklist.entries()) {
+    if (now >= exp) {
       blacklist.delete(token);
-    }, timeUntilExpiry);
+    }
   }
 };
 
-// Cek apakah token sudah di blacklist
-const isBlacklisted = (token) => {
-  return blacklist.has(token);
-};
+setInterval(cleanupExpired, 60 * 60 * 1000);
 
 module.exports = { addToBlacklist, isBlacklisted };

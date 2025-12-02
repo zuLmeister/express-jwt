@@ -3,7 +3,7 @@ const express = require("express");
 const helmet = require("helmet");
 const cors = require("cors");
 const apiRoutes = require("./src/routes/api");
-const errorHandler = require("./src/middleware/errorHandler"); // BARU
+const errorHandler = require("./src/utils/ErrorHandler");
 
 const app = express();
 
