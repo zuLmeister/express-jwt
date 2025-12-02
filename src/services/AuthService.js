@@ -41,21 +41,45 @@ class AuthService {
   static async refreshToken(token) {
     const jwt = require("jsonwebtoken");
 
-    const payload = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+    let payload;
+    try {
+      payload = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+      if (payload.version !== user.refreshTokenVersion) {
+        throw new Error("Refresh token has been revoked");
+      }
+    } catch (err) {
+      throw new Error("Invalid or expired refresh token");
+    }
 
-    const user = await prisma.user.findUnique({ where: { id: payload.id } });
-    if (!user) throw new Error("Invalid refresh token");
+    const user = await prisma.user.findUnique({
+      where: { id: payload.id },
+      select: { id: true, refreshToken: true, refreshTokenVersion: true },
+    });
 
-    if (user.refreshToken !== token) throw new Error("Refresh token mismatch!");
+    if (!user) throw new Error("User not found");
+    if (!user.refreshToken) throw new Error("No active session");
 
-    const { accessToken, refreshToken } = GenerateToken(user);
+    if (user.refreshToken !== token) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          refreshToken: null,
+          refreshTokenVersion: { increment: 1 },
+        },
+      });
+      throw new Error(
+        "Refresh token reused - possible theft! All sessions revoked"
+      );
+    }
+
+    const { accessToken, refreshToken: newRefreshToken } = GenerateToken(user);
 
     await prisma.user.update({
       where: { id: user.id },
-      data: { refreshToken },
+      data: { refreshToken: newRefreshToken },
     });
 
-    return { accessToken, refreshToken };
+    return { accessToken, refreshToken: newRefreshToken };
   }
 
   static async logout(userId) {
